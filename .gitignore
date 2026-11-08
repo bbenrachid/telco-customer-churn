@@ -1,0 +1,12 @@
+# Virtual environment
+Env/
+
+# Environment variables & secrets
+.env
+
+# Raw data
+*.csv
+
+# Python cache
+__pycache__/
+*.pyc
