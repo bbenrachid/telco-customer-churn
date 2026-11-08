@@ -1,4 +1,4 @@
---Joining tables
+-- Joining tables
 SELECT *
 FROM Customers
 JOIN Services USING (customerID)
