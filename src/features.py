@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import joblib
 
 load_dotenv()
 
@@ -63,7 +64,7 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,train_size=0.
 
 ## Training :
 
-model = LogisticRegression(max_iter=1000)
+model = LogisticRegression(max_iter=1000,class_weight='balanced')
 model.fit(X_train,y_train)
 
 ## Accuracy_Score : 
@@ -71,8 +72,21 @@ model.fit(X_train,y_train)
 predictions = model.predict(X_test)
 accuracy = accuracy_score(y_test,predictions)
 print(f"Model accuracy = {accuracy}")
-matrix=confusion_matrix(y_test,predictions)
-report = classification_report(y_test,predictions)
+print(f"Confusion matrix : {confusion_matrix(y_test,predictions)}")
+print(f"Report : {classification_report(y_test,predictions)}")
 
-print(matrix)
-print(report)
+## Importance coefficients :
+
+features = X.columns
+weights = model.coef_[0]
+
+importance_df = pd.DataFrame({
+    "Feature" : features,
+    "Weight" : weights
+})
+importance_df=importance_df.sort_values(by='Weight',ascending=False)
+print(importance_df.head())
+print(importance_df.tail())
+## Saving the model and the scaler :
+joblib.dump(model, 'churn_model.joblib')
+joblib.dump(scaler, 'churn_scaler.joblib')

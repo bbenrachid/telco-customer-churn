@@ -10,3 +10,4 @@ Env/
 # Python cache
 __pycache__/
 *.pyc
+*.joblib
