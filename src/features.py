@@ -32,8 +32,8 @@ db['gender']=db['gender'].map({'Male':0,'Female':1})
 
 ## Yes/No's to binary : 
 
-YNCOLUMNS = ['Partner','Dependents','PhoneService','PaperlessBilling']
-for c in YNCOLUMNS :
+yncolumns = ['Partner','Dependents','PhoneService','PaperlessBilling']
+for c in yncolumns :
     try:
         db[c]=db[c].map({'Yes':1,'No':0})
     except Exception as e:
@@ -87,6 +87,8 @@ importance_df = pd.DataFrame({
 importance_df=importance_df.sort_values(by='Weight',ascending=False)
 print(importance_df.head())
 print(importance_df.tail())
+
 ## Saving the model and the scaler :
+
 joblib.dump(model, 'churn_model.joblib')
 joblib.dump(scaler, 'churn_scaler.joblib')
