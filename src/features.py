@@ -7,13 +7,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import joblib
-
+from pathlib import Path
 load_dotenv()
-
+ROOT = Path(__file__).resolve().parent.parent
+SQL_PATH = ROOT / "sql" / "extract_data.sql"
+MODEL_PATH = ROOT / "churn_model.joblib"
+SCALER_PATH = ROOT / "churn_scaler.joblib"
+#---------------------------------------------------------------------------------------
 url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
 engine=create_engine(url)
 
-with open("../sql/extract_data.sql",'r') as f:
+with open(SQL_PATH,'r') as f:
     query = f.read()
 
 ## Extraction :
@@ -49,18 +53,23 @@ db= pd.get_dummies(db,columns=mc,dtype=int)
 
 ## Scaling : 
 
+X = db.drop('Churn',axis=1)
+y = db['Churn']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
+X_train=X_train.copy()
+X_test=X_test.copy()
+
 num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
 scaler= MinMaxScaler()
 
-db[num_cols]=scaler.fit_transform(db[num_cols])
+X_train[num_cols]=scaler.fit_transform(X_train[num_cols])
+X_test[num_cols]=scaler.transform(X_test[num_cols])
 
 print(f"Columns : {db.columns}")
 
 ## Evaluation :
 
-X = db.drop('Churn',axis=1)
-y = db['Churn']
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,train_size=0.8,random_state=42)
+
 
 ## Training :
 
@@ -79,7 +88,6 @@ print(f"Report : {classification_report(y_test,predictions)}")
 
 features = X.columns
 weights = model.coef_[0]
-
 importance_df = pd.DataFrame({
     "Feature" : features,
     "Weight" : weights
@@ -90,5 +98,5 @@ print(importance_df.tail())
 
 ## Saving the model and the scaler :
 
-joblib.dump(model, 'churn_model.joblib')
-joblib.dump(scaler, 'churn_scaler.joblib')
+joblib.dump(model,MODEL_PATH)
+joblib.dump(scaler,SCALER_PATH)

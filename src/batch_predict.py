@@ -3,12 +3,18 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import joblib
+from pathlib import Path
 load_dotenv()
+ROOT = Path(__file__).resolve().parent.parent
+SQL_PATH = ROOT / "sql" / "extract_data.sql"
+MODEL_PATH = ROOT / "churn_model.joblib"
+SCALER_PATH = ROOT / "churn_scaler.joblib"
+REPORT = ROOT / "high_risk.csv"
 
 url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
 engine = create_engine(url)
 
-with open("sql/extract_data.sql",'r') as f:
+with open(SQL_PATH,'r') as f:
     query = f.read()
 
 try:
@@ -35,7 +41,7 @@ db=pd.get_dummies(db,columns=mc,dtype=int)
 
 X=db.drop('Churn',axis=1)
 
-scaler= joblib.load('churn_scaler.joblib')
+scaler= joblib.load(SCALER_PATH)
 
 num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
 
@@ -43,7 +49,7 @@ X[num_cols]=scaler.transform(X[num_cols])
 
 ## Model
 
-model= joblib.load('churn_model.joblib')
+model= joblib.load(MODEL_PATH)
 
 churn_risk= model.predict_proba(X)[:,1]
 
@@ -55,4 +61,4 @@ report = pd.DataFrame({
 })
 
 High_risk = report[report['Risk_Percentage'] > 65.0].sort_values(by='Risk_Percentage',ascending=False)
-High_risk.to_csv('high_risk.csv',index=False)
+High_risk.to_csv(REPORT,index=False)
