@@ -13,7 +13,7 @@ load_dotenv()
 url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
 engine=create_engine(url)
 
-with open("sql/extract_data.sql",'r') as f:
+with open("../sql/extract_data.sql",'r') as f:
     query = f.read()
 
 ## Extraction :
@@ -57,9 +57,9 @@ db[num_cols]=scaler.fit_transform(db[num_cols])
 print(f"Columns : {db.columns}")
 
 ## Evaluation :
+
 X = db.drop('Churn',axis=1)
 y = db['Churn']
-
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,train_size=0.8,random_state=42)
 
 ## Training :
