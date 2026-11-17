@@ -1,0 +1,11 @@
+# Ignore all CSV datasets
+*.csv
+
+# Ignore MariaDB database dumps
+*.sql
+*.db
+*.env
+*.gitignore
+# Ignore the entire data folder
+sql/
+*.joblib
