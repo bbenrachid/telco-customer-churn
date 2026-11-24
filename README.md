@@ -105,9 +105,6 @@ Logistic Regression (max_iter=1000, class_weight='balanced'), 20% test split (1,
 - Churn (1): precision 0.50, recall 0.78, F1 0.61 (support 374)
 
 Top features: TotalCharges (1.09), Contract_Month-to-month (0.73), InternetService_Fiber optic (0.47). Bottom: tenure (-2.82), Contract_Two year (-0.72).
-
 ## ⚠️ Known limitations
 - Preprocessing is duplicated in `features.py` and `batch_predict.py` — it should be one shared function, with the feature column list saved alongside the model.
-- `main.py` appends on every run instead of replacing / upserting, so re-runs duplicate data.
-- If the SQL extraction in `features.py` fails, the script prints the error and then crashes later because the data was never loaded.
 - `Billing.Churn` is `VARCHAR(5)` in `schema.sql` but is inserted as `0` / `1` — the column type does not match the stored value.
