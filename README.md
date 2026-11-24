@@ -96,7 +96,15 @@ python src/batch_predict.py
 This writes `high_risk.csv` with `customerID` and `Risk_Percentage`, sorted by risk, for customers over 65%.
 
 ## 📊 Results
-No results recorded here yet. `src/features.py` prints accuracy, the confusion matrix, the classification report, and the top / bottom feature weights when it runs. Run it and paste the real numbers here — do not guess them.
+
+Logistic Regression (max_iter=1000, class_weight='balanced'), 20% test split (1,409 customers, random_state=42, stratify=y).
+
+- **Accuracy: 0.738 (73.8%)**
+- **Confusion matrix:** [[747, 288], [81, 293]]
+- No churn (0): precision 0.90, recall 0.72, F1 0.80 (support 1035)
+- Churn (1): precision 0.50, recall 0.78, F1 0.61 (support 374)
+
+Top features: TotalCharges (1.09), Contract_Month-to-month (0.73), InternetService_Fiber optic (0.47). Bottom: tenure (-2.82), Contract_Two year (-0.72).
 
 ## ⚠️ Known limitations
 - Preprocessing is duplicated in `features.py` and `batch_predict.py` — it should be one shared function, with the feature column list saved alongside the model.

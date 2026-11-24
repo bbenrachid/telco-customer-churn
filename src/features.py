@@ -22,13 +22,10 @@ with open(SQL_PATH,'r') as f:
 
 ## Extraction :
 
-try:
-    db=pd.read_sql(query, con=engine)
-    print("Data succesfully extracted !")
-    db = db.drop('customerID',axis=1)
-    print(f"Columns : {db.columns}")
-except Exception as e:
-    print(f"Error Occured: {e}")
+db = pd.read_sql(query, con=engine)
+print("Data succesfully extracted !")
+db = db.drop('customerID', axis=1)
+print(f"Columns : {db.columns}")
 
 ## Gender to binary :
 
@@ -38,11 +35,7 @@ db['gender']=db['gender'].map({'Male':0,'Female':1})
 
 yncolumns = ['Partner','Dependents','PhoneService','PaperlessBilling']
 for c in yncolumns :
-    try:
-        db[c]=db[c].map({'Yes':1,'No':0})
-    except Exception as e:
-        print(f"Error : {e}")
-
+    db[c]=db[c].map({'Yes':1,'No':0})
 
 print(db.head())
 
@@ -66,10 +59,6 @@ X_train[num_cols]=scaler.fit_transform(X_train[num_cols])
 X_test[num_cols]=scaler.transform(X_test[num_cols])
 
 print(f"Columns : {db.columns}")
-
-## Evaluation :
-
-
 
 ## Training :
 

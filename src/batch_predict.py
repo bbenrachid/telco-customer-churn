@@ -17,13 +17,12 @@ engine = create_engine(url)
 with open(SQL_PATH,'r') as f:
     query = f.read()
 
-try:
-    db=pd.read_sql(query, con=engine)
-    print("Data extracted!")
-    customersIDs=db['customerID']
-    db=db.drop('customerID',axis=1)
-except Exception as e:
-    print(f"Error : {e}")
+
+db=pd.read_sql(query, con=engine)
+print("Data extracted!")
+customersIDs=db['customerID']
+db=db.drop('customerID',axis=1)
+
 
 ## Binaries : 
 
