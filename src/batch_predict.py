@@ -19,7 +19,6 @@ with open(SQL_PATH,'r') as f:
 
 
 db=pd.read_sql(query, con=engine)
-print("Data extracted!")
 customersIDs=db['customerID']
 db=db.drop('customerID',axis=1)
 

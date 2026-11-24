@@ -23,9 +23,7 @@ with open(SQL_PATH,'r') as f:
 ## Extraction :
 
 db = pd.read_sql(query, con=engine)
-print("Data succesfully extracted !")
 db = db.drop('customerID', axis=1)
-print(f"Columns : {db.columns}")
 
 ## Gender to binary :
 
@@ -37,7 +35,6 @@ yncolumns = ['Partner','Dependents','PhoneService','PaperlessBilling']
 for c in yncolumns :
     db[c]=db[c].map({'Yes':1,'No':0})
 
-print(db.head())
 
 ## Multi Cols :
 
@@ -58,7 +55,6 @@ scaler= MinMaxScaler()
 X_train[num_cols]=scaler.fit_transform(X_train[num_cols])
 X_test[num_cols]=scaler.transform(X_test[num_cols])
 
-print(f"Columns : {db.columns}")
 
 ## Training :
 

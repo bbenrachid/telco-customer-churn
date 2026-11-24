@@ -39,7 +39,6 @@ def main():
     db = load_and_clean()
     Customer, Services, Billing = split_tables(db)
     load_to_db(Customer, Services, Billing)
-    print(db.dtypes)
 
 
 if __name__ == "__main__":
