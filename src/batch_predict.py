@@ -3,12 +3,14 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import joblib
+from preprocessing import preprocess
 from pathlib import Path
 load_dotenv()
 ROOT = Path(__file__).resolve().parent.parent
 SQL_PATH = ROOT / "sql" / "extract_data.sql"
 MODEL_PATH = ROOT / "churn_model.joblib"
 SCALER_PATH = ROOT / "churn_scaler.joblib"
+CHURN_FEATURES = ROOT / "churn_features.joblib"
 REPORT = ROOT / "high_risk.csv"
 
 url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
@@ -22,22 +24,11 @@ db=pd.read_sql(query, con=engine)
 customersIDs=db['customerID']
 db=db.drop('customerID',axis=1)
 
-
-## Binaries : 
-
-db['gender']=db['gender'].map({'Male': 0, 'Female': 1})
-
-yncolumns = ['Partner','Dependents','PhoneService','PaperlessBilling']
-
-for c in yncolumns:
-    db[c]=db[c].map({'Yes': 1, 'No': 0})
-
-mc = ['MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod']
-db=pd.get_dummies(db,columns=mc,dtype=int)
-
+##Saved list
+saved_list = joblib.load(CHURN_FEATURES)
+X,y=preprocess(db,saved_list)
 ## Scaler
 
-X=db.drop('Churn',axis=1)
 
 scaler= joblib.load(SCALER_PATH)
 

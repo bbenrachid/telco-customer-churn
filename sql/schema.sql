@@ -33,7 +33,7 @@ CREATE TABLE Billing (
     tenure INT,
     MonthlyCharges DECIMAL(10, 2),
     TotalCharges DECIMAL(10, 2) NULL,
-    Churn VARCHAR(5),
+    Churn TINYINT(1),
     CONSTRAINT fk_bill_custid FOREIGN KEY (customerID)
     REFERENCES Customers(customerID)
     ON DELETE CASCADE

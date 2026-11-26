@@ -7,12 +7,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import joblib
+from preprocessing import preprocess
 from pathlib import Path
 load_dotenv()
 ROOT = Path(__file__).resolve().parent.parent
 SQL_PATH = ROOT / "sql" / "extract_data.sql"
 MODEL_PATH = ROOT / "churn_model.joblib"
 SCALER_PATH = ROOT / "churn_scaler.joblib"
+CHURN_FEATURES = ROOT / "churn_features.joblib"
 #---------------------------------------------------------------------------------------
 url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
 engine=create_engine(url)
@@ -25,26 +27,8 @@ with open(SQL_PATH,'r') as f:
 db = pd.read_sql(query, con=engine)
 db = db.drop('customerID', axis=1)
 
-## Gender to binary :
-
-db['gender']=db['gender'].map({'Male':0,'Female':1})
-
-## Yes/No's to binary : 
-
-yncolumns = ['Partner','Dependents','PhoneService','PaperlessBilling']
-for c in yncolumns :
-    db[c]=db[c].map({'Yes':1,'No':0})
-
-
-## Multi Cols :
-
-mc = ['MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod']
-db= pd.get_dummies(db,columns=mc,dtype=int)
-
 ## Scaling : 
-
-X = db.drop('Churn',axis=1)
-y = db['Churn']
+X,y=preprocess(db)
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
 X_train=X_train.copy()
 X_test=X_test.copy()
@@ -85,3 +69,4 @@ print(importance_df.tail())
 
 joblib.dump(model,MODEL_PATH)
 joblib.dump(scaler,SCALER_PATH)
+joblib.dump(X.columns,CHURN_FEATURES)
