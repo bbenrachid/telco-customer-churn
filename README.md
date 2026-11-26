@@ -26,13 +26,14 @@ telco-customer-churn/
 │   └── extract_data.sql      # JOIN Customers + Services + Billing
 ├── src/
 │   ├── main.py               # Phase 1: CSV ingestion to MariaDB
+│   ├── preprocessing.py      # Shared preprocessing used by training and prediction
 │   ├── features.py           # Phase 2 & 3: Preprocessing & model training
 │   └── batch_predict.py      # Phase 4: Score all customers -> high_risk.csv
 ├── requirements.txt          # Python dependencies
 └── README.md                 # Project documentation
 ```
 
-Files that are generated locally and **not** in this repo (gitignored): the raw CSV, `.env`, `churn_model.joblib`, `churn_scaler.joblib`, `high_risk.csv`. There is no `.env.example` in the repo yet — create a `.env` file with the variables below.
+Files that are generated locally and **not** in this repo (gitignored): the raw CSV, `.env`, `churn_model.joblib`, `churn_scaler.joblib`, `churn_features.joblib`, `high_risk.csv`. Copy `.env.example` to `.env` and fill in your values.
 
 ## 🗃️ The tables — what I did
 The flat CSV was split by `customerID` into 3 tables in `src/main.py`:
@@ -66,10 +67,10 @@ Prerequisites: Python >= 3.11, MariaDB running, and the CSV file `WA_Fn-UseC_-Te
 mysql -u <user> -p <database_name> < sql/schema.sql
 ```
 
-2. Create a `.env` file in the project root:
+2. Copy `.env.example` to `.env` and fill in your values:
 ```text
 USER_DB=<mariadb_user>
-DB_PASSWORD=<mariadb_password>
+DB_PASSWORD=<redacted>
 DB_HOST=localhost
 DB_NAME=<database_name>
 ```
