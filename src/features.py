@@ -9,17 +9,20 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import joblib
 from preprocessing import preprocess
 from pathlib import Path
+
 load_dotenv()
+
 ROOT = Path(__file__).resolve().parent.parent
 SQL_PATH = ROOT / "sql" / "extract_data.sql"
 MODEL_PATH = ROOT / "churn_model.joblib"
 SCALER_PATH = ROOT / "churn_scaler.joblib"
 CHURN_FEATURES = ROOT / "churn_features.joblib"
-#---------------------------------------------------------------------------------------
-url=f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
-engine=create_engine(url)
 
-with open(SQL_PATH,'r') as f:
+# ---------------------------------------------------------------------------------------
+url = f"mysql+pymysql://{os.getenv('USER_DB')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:3306/{os.getenv('DB_NAME')}"
+engine = create_engine(url)
+
+with open(SQL_PATH, 'r') as f:
     query = f.read()
 
 ## Extraction :
@@ -27,46 +30,46 @@ with open(SQL_PATH,'r') as f:
 db = pd.read_sql(query, con=engine)
 db = db.drop('customerID', axis=1)
 
-## Scaling : 
-X,y=preprocess(db)
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)
-X_train=X_train.copy()
-X_test=X_test.copy()
+## Scaling :
+X, y = preprocess(db)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train = X_train.copy()
+X_test = X_test.copy()
 
 num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
-scaler= MinMaxScaler()
+scaler = MinMaxScaler()
 
-X_train[num_cols]=scaler.fit_transform(X_train[num_cols])
-X_test[num_cols]=scaler.transform(X_test[num_cols])
+X_train[num_cols] = scaler.fit_transform(X_train[num_cols])
+X_test[num_cols] = scaler.transform(X_test[num_cols])
 
 
 ## Training :
 
-model = LogisticRegression(max_iter=1000,class_weight='balanced')
-model.fit(X_train,y_train)
+model = LogisticRegression(max_iter=1000, class_weight='balanced')
+model.fit(X_train, y_train)
 
-## Accuracy_Score : 
+## Accuracy_Score :
 
 predictions = model.predict(X_test)
-accuracy = accuracy_score(y_test,predictions)
+accuracy = accuracy_score(y_test, predictions)
 print(f"Model accuracy = {accuracy}")
-print(f"Confusion matrix : {confusion_matrix(y_test,predictions)}")
-print(f"Report : {classification_report(y_test,predictions)}")
+print(f"Confusion matrix : {confusion_matrix(y_test, predictions)}")
+print(f"Report : {classification_report(y_test, predictions)}")
 
 ## Importance coefficients :
 
 features = X.columns
 weights = model.coef_[0]
 importance_df = pd.DataFrame({
-    "Feature" : features,
-    "Weight" : weights
+    "Feature": features,
+    "Weight": weights
 })
-importance_df=importance_df.sort_values(by='Weight',ascending=False)
+importance_df = importance_df.sort_values(by='Weight', ascending=False)
 print(importance_df.head())
 print(importance_df.tail())
 
 ## Saving the model and the scaler :
 
-joblib.dump(model,MODEL_PATH)
-joblib.dump(scaler,SCALER_PATH)
-joblib.dump(X.columns,CHURN_FEATURES)
+joblib.dump(model, MODEL_PATH)
+joblib.dump(scaler, SCALER_PATH)
+joblib.dump(X.columns, CHURN_FEATURES)
